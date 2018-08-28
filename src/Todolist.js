@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import TodoItem from './TodoItem'
+import TodoItem from "./TodoItem";
 
 class Todolist extends Component {
   constructor(props) {
@@ -10,28 +10,29 @@ class Todolist extends Component {
       list: []
     };
 
-    this.handleItemDelete = this.handleItemDelete.bind(this)
+    this.handleItemDelete = this.handleItemDelete.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleInputKeyUp = this.handleInputKeyUp.bind(this);
+    this.handleBtnClick = this.handleBtnClick.bind(this);
   }
 
   handleBtnClick() {
-    this.setState({
-      inputValue: "",
-      list: [...this.state.list, this.state.inputValue]
-    });
+    this.setState(prevState => ({
+      list: [...prevState.list, prevState.inputValue], // list: [...this.state.list, this.state.inputValue]
+      inputValue: ""
+    }));
   }
 
   handleInputChange(e) {
-    this.setState({
-      inputValue: e.target.value
-    });
+    const { value } = e.target;
+    this.setState(() => ({ inputValue: value }));
   }
 
   handleItemDelete(index) {
-    // immutable
-    const list = [...this.state.list]; // 必须做个复本重新修改
-    list.splice(index, 1);
-    this.setState({
-      list
+    this.setState((prevState) => {
+      const list = [...prevState.list];   // 必须做个复本重新修改 --> immutable
+      list.splice(index, 1);
+      return { list };
     });
   }
 
@@ -39,6 +40,19 @@ class Todolist extends Component {
     if (e.keyCode === 13) {
       this.handleBtnClick();
     }
+  }
+
+  getTodoItem() {
+    return this.state.list.map((item, index) => {
+      return (
+        <TodoItem
+          key={index}
+          itemValue={item}
+          index={index}
+          deleteItem={this.handleItemDelete}
+        />
+      );
+    });
   }
 
   render() {
@@ -49,11 +63,11 @@ class Todolist extends Component {
           <input
             id="InutArea"
             value={this.state.inputValue}
-            onChange={this.handleInputChange.bind(this)}
-            onKeyDown={this.handleInputKeyUp.bind(this)}
+            onChange={this.handleInputChange}
+            onKeyDown={this.handleInputKeyUp}
           />
           <button
-            onClick={this.handleBtnClick.bind(this)}
+            onClick={this.handleBtnClick}
             style={{
               marginLeft: "5px"
             }}
@@ -62,24 +76,7 @@ class Todolist extends Component {
           </button>
         </div>
         <div>
-          <ul>
-            {this.state.list.map((item, index) => {
-              return (
-                <TodoItem 
-                  key={index} 
-                  itemValue={item} 
-                  index={index}
-                  deleteItem={this.handleItemDelete}
-                ></TodoItem>
-                // <li
-                //   key={index}
-                //   onClick={this.handleItemDelete.bind(this, index)}
-                //   dangerouslySetInnerHTML={{__html: item}}
-                // >
-                // </li>
-              );
-            })}
-          </ul>
+          <ul>{this.getTodoItem()}</ul>
         </div>
       </Fragment>
     );
